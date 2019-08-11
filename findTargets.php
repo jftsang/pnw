@@ -1,12 +1,42 @@
+<?
+function minutesToStr($minutes)
+{
+    if ($minutes < 60)
+        return sprintf("%dm", $minutes);
+    else if ($minutes < 1440)
+        return sprintf("%dh %dm",
+            floor($minutes / 60),
+            $minutes % 60
+        );
+    else
+        return sprintf("%dd %dh %dm", 
+            floor($minutes / 1440),
+            floor(($minutes % 1440) / 60),
+            ($minutes % 1440) % 60
+        );
+}
+?>
 <html>
 <head>
 <style>
+table {border-collapse: collapse;}
 td {padding-left: 1em; padding-right: 1em; text-align: center;}
+
 </style>
 </head>
 <body>
 
-<h1>P&W targets finder</h1>
+<h1>P&amp;W targets finder</h1>
+
+<p>The cached list of nations was last updated
+<?
+$cacheAge = (time() - filemtime("nations.txt")) / 60;
+
+$cacheAgeStr = minutesToStr($cacheAge);
+
+echo($cacheAgeStr);
+?>
+ ago.</p>
 
 <?php
 if (isset($_REQUEST["apiKey"]))
@@ -76,7 +106,7 @@ from the following alliances:
     }
 ?>
 </ul>
-Nations that are either beiged or out of defensive slots are shown in grey.
+<!-- Nations that are either beiged or out of defensive slots are shown in grey. -->
 </p>
 
 <table style="margin-left: auto; margin-right: auto;">
@@ -96,17 +126,29 @@ Nations that are either beiged or out of defensive slots are shown in grey.
 <tbody>
 <?
 // var_dump($targets);
+    $rowCtr = 0;
 
     foreach ($targets as $id=>$n)
     {
-        $isInactive = $n["minutessinceactive"] > 20160;
+
+        $inactivity = $n["minutessinceactive"] + $cacheAge;
+
+        $isInactive = $inactivity > 20160;
         $isBeige = $n["color"] == "beige";
         $isFull = $n["defensivewars"] == 3;
     
         if ($isBeige || $isFull)
-            printf("<tr style=\"color: #AAAAAA;\">");
+            // printf("<tr style=\"color: #AAAAAA;\">");
+            continue;
         else
-            printf("<tr>");
+        {
+            $rowCtr++;
+            $rowCtr % 2 == 0 ? 
+                printf("<tr style=\"background-color:peachpuff\">")
+            :
+                printf("<tr style=\"background-color:lavender\">")
+            ;
+
 ?>
   <td style="text-align: right;">
   <a href="https://politicsandwar.com/nation/id=<?=$n["nationid"]?>"
@@ -122,14 +164,10 @@ Nations that are either beiged or out of defensive slots are shown in grey.
   <td><?=$n["offensivewars"]?></td>
   <td><?=$n["defensivewars"]?></td>
   <td style="text-align: right;">
-  <?=sprintf("%dd %dh %dm", 
-    floor($n["minutessinceactive"] / 1440),
-    floor(($n["minutessinceactive"] % 1440) / 60),
-    ($n["minutessinceactive"] % 1440) % 60
-  )
-  ?></td>
+  <?=minutesToStr($inactivity)?></td>
 </tr>
 <?
+        }
     }
 ?>
 </tbody>
@@ -138,15 +176,18 @@ Nations that are either beiged or out of defensive slots are shown in grey.
 } 
 else
 {
+    if ($_SERVER["REQUEST_METHOD"] == "POST")
+    {
 ?>
-<p>(No nation specified or JSON request failed.)</p>
+<p>(No nation specified or JSON request failed. Try checking your API key?)</p>
 <?
+    }
 }
 ?>
 
 <h2>New search</h2>
 
-<form action="<?=$_SERVER["PHP_SELF"]?>" method="get">
+<form action="<?=$_SERVER["PHP_SELF"]?>" method="post">
 Nation ID: <input type="text" name="myNationId" value="<?=$myNationId?>"/><br/>
 Target alliances (comma separated without spaces): <br/>
         <input type="text" name="targetAlliances" 
@@ -156,23 +197,13 @@ API key: <input type="text" name="apiKey" value="<?=$apiKey?>"/><br/>
 <input type="submit" value="Search"/>
 </form>
 
+<p>You can find your API key on your <a
+href="https://politicsandwar.com/account/#7" target="_blank">Account
+Settings</a> page.</p>
+
 <h2>Update the list of nations</h2>
 
-<p>The cached list of nations was last updated
-<?
-
-$cacheAge = time() - filemtime("nations.txt");
-
-$cacheAge = sprintf("%dd %dh %dm", 
-    floor($cacheAge / 86400),
-    floor(($cacheAge % 86400) / 3600),
-    floor(($cacheAge % 86400) % 3600) / 60);
-
-echo($cacheAge);
-?>
- ago.</p>
-
-<form action="updateNations.php" method="get">
+<form action="updateNations.php" method="post">
 API key: <input type="text" name="apiKey"/><br/>
 <input type="submit" value="Update nations"/>
 </form>
