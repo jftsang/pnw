@@ -18,9 +18,17 @@ function minutesToStr($minutes)
 ?>
 <html>
 <head>
+<title>P&W targets finder</title>
 <style>
 table {border-collapse: collapse;}
-td {padding-left: 1em; padding-right: 1em; text-align: center;}
+td
+{
+    padding-left: 1em;
+    padding-right: 1em;
+    padding-top: 1ex;
+    padding-bottom: 1ex;
+    text-align: center;
+}
 
 </style>
 </head>
@@ -202,6 +210,9 @@ href="https://politicsandwar.com/account/#7" target="_blank">Account
 Settings</a> page.</p>
 
 <h2>Update the list of nations</h2>
+
+<p>You might want to update the list of nations to get the most
+up-to-date results. This may take up to a minute.</p>
 
 <form action="updateNations.php" method="post">
 API key: <input type="text" name="apiKey"/><br/>
