@@ -63,7 +63,7 @@ if (isset($_REQUEST["targetAlliances"]) && $_REQUEST["targetAlliances"] != "")
 else
     $targetAlliances = array("None");
 
-$apiUrl = sprintf("http://politicsandwar.com/api/nation/id=%d/&key=%s", $myNationId, $apiKey);
+$apiUrl = sprintf("http://politicsandwar.com/api/nation/id=%d/&key=%s", urlencode($myNationId), urlencode($apiKey));
 // var_dump($apiUrl);
 $f = fopen($apiUrl, "r");
 $myNation = json_decode(fgets($f), TRUE);
@@ -110,7 +110,7 @@ from the following alliances:
 <? 
     foreach ($targetAlliances as $alliance)
     {
-        printf("<li>%s</li>\n", $alliance);
+        printf("<li>%s</li>\n", htmlentities($alliance));
     }
 ?>
 </ul>
