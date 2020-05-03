@@ -209,16 +209,5 @@ API key: <input type="text" name="apiKey" value="<?=$apiKey?>"/><br/>
 href="https://politicsandwar.com/account/#7" target="_blank">Account
 Settings</a> page.</p>
 
-<h2>Update the list of nations</h2>
-
-<p>You might want to update the list of nations to get the most
-up-to-date results. This may take up to a minute.</p>
-
-<form action="updateNations.php" method="post">
-API key: <input type="text" name="apiKey"/><br/>
-<input type="submit" value="Update nations"/>
-</form>
-
-
 </body>
 </html>
