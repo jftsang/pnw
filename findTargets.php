@@ -9,7 +9,7 @@ function minutesToStr($minutes)
             $minutes % 60
         );
     else
-        return sprintf("%dd %dh %dm", 
+        return sprintf("%dd %dh %dm",
             floor($minutes / 1440),
             floor(($minutes % 1440) / 60),
             ($minutes % 1440) % 60
@@ -59,9 +59,10 @@ else
 
 
 if (isset($_REQUEST["targetAlliances"]) && $_REQUEST["targetAlliances"] != "")
-    $targetAlliances = explode(",", $_REQUEST["targetAlliances"]);
+    $targetAlliances = explode("\n", $_REQUEST["targetAlliances"]);
 else
     $targetAlliances = array("None");
+$targetAlliances = array_map( trim, $targetAlliances);
 
 $apiUrl = sprintf("http://politicsandwar.com/api/nation/id=%d/&key=%s", urlencode($myNationId), urlencode($apiKey));
 // var_dump($apiUrl);
@@ -81,12 +82,15 @@ if ($myNation["success"] == true)
     fclose($f);
 
     $targets = json_decode($json, TRUE)["nations"];
+    // var_dump(count($targets));
+    // var_dump($targetAlliances);
     $targets = array_filter( $targets,
         function($n){
             global $targetAlliances;
             return in_array($n["alliance"], $targetAlliances);
         } 
     );
+    // var_dump(count($targets));
 
     $targets = array_map( 
         function($n){
@@ -165,7 +169,11 @@ from the following alliances:
                   <?=$n["nation"]?>
   </a>
   </td>
-  <td style="text-align: center;"><?=$n["alliance"]?></td>
+  <td style="text-align: center;">
+    <a href="<?="https://politicsandwar.com/alliance/id=".$n["allianceid"]?>">
+    <?=$n["alliance"]?>
+    </a>
+    </td>
   <td style="text-align: center;"><?=$n["color"]?></td>
   <td style="text-align: right;"><?=sprintf("%.2f", $n["score"])?></td>
   <td style="text-align: center;"><?=$n["cities"]?></td>
@@ -197,10 +205,13 @@ else
 
 <form action="<?=$_SERVER["PHP_SELF"]?>" method="post">
 Nation ID: <input type="text" name="myNationId" value="<?=$myNationId?>"/><br/>
-Target alliances (comma separated without spaces): <br/>
-        <input type="text" name="targetAlliances" 
-               value="<?=isset($targetAlliances) ? implode(",", $targetAlliances) : ""?>"
-               style="width: 600px"/><br/>
+Target alliances (one per line): <br/>
+<textarea name="targetAlliances" 
+        rows="24" cols="80"
+       style="width: 600px">
+<?=isset($targetAlliances) ? implode("\n", $targetAlliances) : ""?>
+</textarea>
+<br/>
 API key: <input type="text" name="apiKey" value="<?=$apiKey?>"/><br/>
 <input type="submit" value="Search"/>
 </form>
