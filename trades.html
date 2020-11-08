@@ -16,7 +16,10 @@
 </div>
 <div>
 
-<img id="graph" src="tradehist-all.png"/>
+    <!-- <img id="graph" src="tradehist-all.png"/> -->
+<iframe id="graph" title="Graph" src="plotly-steel.html"
+        style="width: 1000px; height: 800px; border: none;">
+</iframe>
 </div>
 
 
@@ -37,7 +40,8 @@ function addToOptions(item, index) {
 function changeGraph() {
     var resource = document.getElementById('resource').value;
     var graph = document.getElementById('graph');
-    graph.src = "tradehist-" + resource + ".png";
+    // graph.src = "tradehist-" + resource + ".png";
+    graph.src = "plotly-" + resource + ".html";
 }
 </script>
     
