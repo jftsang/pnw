@@ -39,7 +39,11 @@ class UnsuccessfulAPIError(Exception):
 def api_call(category, key=API_KEY):
     api_url = f"{API_PATH}/{category}/?key={key}"
     logging.info(f"Making API call to {api_url}...")
-    r = requests.get(url=api_url).json()
+    try:
+        r = requests.get(url=api_url).json()
+
+    except requests.exceptions.ConnectionError:
+        raise UnsuccessfulAPIError
     if not r['success']:
         raise UnsuccessfulAPIError
     return r

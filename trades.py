@@ -96,13 +96,21 @@ def main(args):
                  ["lead", "iron", "bauxite", "gasoline"],
                  ["munitions", "steel", "aluminum", "food"]]
     while True:
-        trade_history, new_trades = update_trade_history()
+        try:
+            trade_history, new_trades = update_trade_history()
+        except Exception as e:
+            logging.exception(e)
+            continue
         #resources = [["coal", "oil", "iron"],
         #             ["gasoline", "steel", "food"]]
         fig, axs = plt.subplots(3, 4, figsize=(16, 10))
         for i in range(3):
             for j in range(4):
-                makeplot(trade_history, resources[i][j], axs[i][j])
+                try:
+                    makeplot(trade_history, resources[i][j], axs[i][j])
+                except Exception as e:
+                    logging.exception(e)
+                    continue
         plt.figure(fig.number)
         plt.savefig('tradehist.png')
         # plt.show()
