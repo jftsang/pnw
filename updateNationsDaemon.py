@@ -3,18 +3,19 @@
 """
 import json
 import logging
-logging.getLogger().setLevel(logging.INFO)
 import time
 
 import requests
 from requests.exceptions import ConnectionError, Timeout
 
-from config import API_KEY, API_PATH, SLEEP_TIME
+# from config import API_KEY, API_PATH, SLEEP_TIME
+from config import *
+
+
+logging.getLogger().setLevel(logging.INFO)
 
 def update_nation_list(fn="nations.txt"):
     logging.info("Getting new list of nations...")
-
-    tic = time.time()
     api_url = f"{API_PATH}/nations/?key={API_KEY}"
     r = requests.get(url=api_url).json()
     if not r["success"]:
@@ -22,18 +23,7 @@ def update_nation_list(fn="nations.txt"):
 
     with open(fn, "w") as fp:
         json.dump(r, fp)
-
-    toc = time.time()
-    logging.info(f"Successfully updated the list of nations. ({toc - tic}s)")
-
-
-class UnsuccessfulAPIError(Exception):
-    pass
-    # https://stackoverflow.com/questions/1319615/proper-way-to-declare-custom-exceptions-in-modern-python
-#    def __init__(self, message, errors):
-#        super().__init__(message)
-#
-#        self.errors = errors
+    logging.info(f"Successfully updated the list of nations.")
 
 
 def daemon():
@@ -48,6 +38,13 @@ def daemon():
         print("Waiting...")
         time.sleep(SLEEP_TIME)
 
+
+def main(daemon=False):
+    if daemon:
+        daemon()
+    else:
+        update_nation_list()
+
+
 if __name__ == "__main__":
-    update_nation_list()
-    # daemon()
+    main()
