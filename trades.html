@@ -1,0 +1,45 @@
+<html>
+<head>
+    <title>PNW trade history</title>
+
+<script>
+</script>
+</head>
+<body>
+<h1>PNW trade history</h1>
+
+<div>
+    <label for="resource">resource</label>
+    <select id="resource" name="resource" onchange="changeGraph()">
+    </select>
+    <a href="tradehistory.csv">csv</a>
+</div>
+<div>
+
+<img id="graph" src="tradehist-all.png"/>
+</div>
+
+
+<script>
+var resources = ["all",
+                 "credits", "coal", "oil", "uranium",
+                 "lead", "iron", "bauxite", "gasoline",
+                 "munitions", "steel", "aluminum", "food"];
+resources.forEach(addToOptions);
+
+function addToOptions(item, index) {
+    var select = document.getElementById('resource');
+    var r = document.createElement("option");
+    r.text = item;
+    select.add(r);
+}
+
+function changeGraph() {
+    var resource = document.getElementById('resource').value;
+    var graph = document.getElementById('graph');
+    graph.src = "tradehist-" + resource + ".png";
+}
+</script>
+    
+</body>
+</html>

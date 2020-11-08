@@ -102,7 +102,7 @@ def main(args):
             continue
         #resources = [["coal", "oil", "iron"],
         #             ["gasoline", "steel", "food"]]
-        fig_multi, axs = plt.subplots(3, 4, figsize=(16, 10))
+        fig_multi, axs = plt.subplots(3, 4, figsize=(15, 12))
         for i in range(3):
             for j in range(4):
                 try:
@@ -133,4 +133,3 @@ if __name__ == "__main__":
     # parser.add_argument("resource")
     args = parser.parse_args()
     main(args)
-
