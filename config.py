@@ -37,7 +37,7 @@ class UnsuccessfulAPIError(Exception):
 
 @Timed
 def api_call(category, key=API_KEY):
-    api_url = f"{API_PATH}/{category}/?key={key}"
+    api_url = f"{API_PATH}/{category}?key={key}"
     logging.info(f"Making API call to {api_url}...")
     try:
         r = requests.get(url=api_url).json()

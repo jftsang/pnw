@@ -50,15 +50,13 @@ def get_current_prices(resource):
     return res
 
 
-def makeplot(trades, resource, ax=plt.gca()):
+def makeplot(trades, current_prices, resource, ax=plt.gca()):
     trades = trades[trades.resource == resource]
     trades = trades.sort_values('date')
 
     trades = trades[trades.date >=  datetime.datetime.now() + relativedelta(days=-1)]
     sells = trades[trades.offer_type == 'sell']
     buys = trades[trades.offer_type == 'buy']
-
-    current_prices = get_current_prices(resource)
 
     # breakpoint()
     ax.plot(buys.date, buys.price, 'bx',
@@ -88,7 +86,7 @@ def makeplot(trades, resource, ax=plt.gca()):
             max(trades.price.quantile(0.8),
                 current_prices['lowestbuy']['price'])*1.05
         ])
-    ax.grid()
+    ax.grid(True)
 
 
 def main(args):
@@ -98,21 +96,30 @@ def main(args):
     while True:
         try:
             trade_history, new_trades = update_trade_history()
+
         except Exception as e:
             logging.exception(e)
             continue
         #resources = [["coal", "oil", "iron"],
         #             ["gasoline", "steel", "food"]]
-        fig, axs = plt.subplots(3, 4, figsize=(16, 10))
+        fig_multi, axs = plt.subplots(3, 4, figsize=(16, 10))
         for i in range(3):
             for j in range(4):
                 try:
-                    makeplot(trade_history, resources[i][j], axs[i][j])
+                    resource = resources[i][j]
+                    fig = plt.figure()
+                    ax = fig.add_subplot(1,1,1)
+                    current_prices = get_current_prices(resource)
+                    makeplot(trade_history, current_prices, resource, ax)
+                    plt.savefig(f'tradehist-{resource}.png')
+
+                    plt.figure(fig_multi.number)
+                    makeplot(trade_history, current_prices, resource, axs[i][j])
                 except Exception as e:
                     logging.exception(e)
                     continue
-        plt.figure(fig.number)
-        plt.savefig('tradehist.png')
+        plt.figure(fig_multi.number)
+        plt.savefig('tradehist-all.png')
         # plt.show()
         logging.info(f"Sleeping for {SLEEP_TIME}...")
         time.sleep(SLEEP_TIME)
