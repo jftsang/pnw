@@ -11,8 +11,12 @@ import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+import psutil
 
 from config import *
+
 
 TRADE_HISTORY = "tradehistory.csv"
 
@@ -95,9 +99,6 @@ def makeplot(trades, current_prices, resource, ax=plt.gca()):
 
 
 def plotly(trades, current_prices, resource):
-    import plotly.express as px
-    import plotly.graph_objects as go
-
     trades = trades[trades.resource == resource]
     trades = trades[trades.date >= datetime.datetime.now() + relativedelta(days=-1)]
     trades['logquantity'] = np.log2(trades.quantity)
