@@ -52,7 +52,10 @@ def get_trade_history(update=True):
 
 
 def get_current_prices(resource):
-    logging.info(f"Getting prices for {resource}...")
+#    res = {'avgprice': 2,
+#           'highestbuy': {'price': 1, 'date': '2020-11-13 02:59:27'},
+#           'lowestbuy': {'price': 3, 'date': '2020-11-13 02:59:27'}}
+    logging.info(f"Getting current price and offers for {resource}...")
     traceprice_url = f"http://politicsandwar.com/api/tradeprice/?resource={resource}&key={API_KEY}"
     res = requests.get(url=traceprice_url).json()
     res['avgprice'] = int(res['avgprice'])
