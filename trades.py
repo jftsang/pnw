@@ -19,6 +19,8 @@ from config import *
 
 
 TRADE_HISTORY = "tradehistory.csv"
+OUTDIR = os.path.join(os.getcwd(), "graphs")
+os.makedirs(OUTDIR, exist_ok=True)
 
 def get_new_trades():
     api_return = api_call("trade-history")
@@ -139,50 +141,51 @@ def plotly(trades, current_prices, resource):
         paper_bgcolor="LightSteelBlue")
     fig.update_xaxes(title_text="date", dtick=7200000)
     fig.update_yaxes(title_text="price", range=[ymin, ymax])
-    fig.write_html(f"plotly-{resource}.html", include_plotlyjs="cdn")
+    fig.write_html(os.path.join(OUTDIR, f"plotly-{resource}.html"),
+                   include_plotlyjs="cdn")
 
 
 def main(args):
-    resources = [["credits", "coal", "oil", "uranium"],
-                 ["lead", "iron", "bauxite", "gasoline"],
-                 ["munitions", "steel", "aluminum", "food"]]
+    resources = ["credits", "coal", "oil", "uranium",
+                 "lead", "iron", "bauxite", "gasoline",
+                 "munitions", "steel", "aluminum", "food"]
     while True:
         try:
             trade_history = get_trade_history()
-
         except Exception as e:
             logging.exception(e)
             continue
-        #resources = [["coal", "oil", "iron"],
-        #             ["gasoline", "steel", "food"]]
-        fig_multi, axs = plt.subplots(3, 4, figsize=(15, 12))
-        for i in range(3):
-            for j in range(4):
-                try:
-                    resource = resources[i][j]
-                    fig = plt.figure()
-                    ax = fig.add_subplot(1,1,1)
-                    current_prices = get_current_prices(resource)
-                    makeplot(trade_history, current_prices, resource, ax)
-                    plt.savefig(f'tradehist-{resource}.png')
-                    plt.close(fig.number)
 
-                    plt.figure(fig_multi.number)
-                    makeplot(trade_history, current_prices, resource, axs[i][j])
+        fig_multi, axs = plt.subplots(3, 4, figsize=(18, 14))
+        for ind in range(len(resources)):
+            resource = resources[ind]
+            fig_single = plt.figure(ind)
+            ax = fig_single.gca()
 
-                    plotly(trade_history, current_prices, resource)
-                except Exception as e:
-                    logging.exception(e)
-                    continue
-        plt.figure(fig_multi.number)
-        plt.savefig('tradehist-all.png')
-        plt.close(fig_multi.number)
-        # plt.show()
+            try:
+                current_prices = get_current_prices(resource)
+                makeplot(trade_history, current_prices, resource, ax)
+                fig_single.savefig(os.path.join(OUTDIR, f'tradehist-{resource}.png'))
+                plotly(trade_history, current_prices, resource)
+
+                plt.figure(fig_multi.number)
+                i, j = ind // 4, ind % 4
+                makeplot(trade_history, current_prices, resource, axs[i][j])
+            except Exception as e:
+                logging.exception(e)
+                continue
+
+        fig_multi.savefig(os.path.join(OUTDIR, 'tradehist-all.png'))
+        process = psutil.Process(os.getpid())
+        print(process.memory_info().vms / 1e6)  # megabytes
+        print(process.memory_info().rss / 1e6)
+
         logging.info(f"Sleeping for {SLEEP_TIME}...")
-        time.sleep(SLEEP_TIME)
-
-
-    # makeplot(args.resource)
+        try:
+            time.sleep(SLEEP_TIME)
+        except KeyboardInterrupt:
+            input('Enter to refresh, or Ctrl-C again to quit')
+            continue
 
 
 if __name__ == "__main__":
@@ -190,7 +193,3 @@ if __name__ == "__main__":
     # parser.add_argument("resource")
     args = parser.parse_args()
     main(args)
-    resource='food'
-    plotly(get_trade_history(update=False),
-           get_current_prices(resource),
-           resource)
