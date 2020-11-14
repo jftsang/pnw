@@ -13,11 +13,11 @@
     <select id="resource" name="resource" onchange="changeGraph()">
     </select>
     <a href="tradehistory.csv">csv</a>
+    <a id="pnglink" href="graphs/tradehist-all.png">png</a>
 </div>
 <div>
 
-    <!-- <img id="graph" src="tradehist-all.png"/> -->
-<iframe id="graph" title="Graph" src="plotly-steel.html"
+<iframe id="graph" title="Graph" src="graphs/plotly-steel.html"
         style="width: 1000px; height: 800px; border: none;">
 </iframe>
 </div>
@@ -41,7 +41,9 @@ function changeGraph() {
     var resource = document.getElementById('resource').value;
     var graph = document.getElementById('graph');
     // graph.src = "tradehist-" + resource + ".png";
-    graph.src = "plotly-" + resource + ".html";
+    graph.src = "graphs/plotly-" + resource + ".html";
+    var pnglink = document.getElementById('pnglink');
+    pnglink.href = "graphs/tradehist-" + resource + ".png";
 }
 </script>
     

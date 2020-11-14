@@ -72,7 +72,6 @@ def makeplot(trades, current_prices, resource, ax=plt.gca()):
     sells = trades[trades.offer_type == 'sell']
     buys = trades[trades.offer_type == 'buy']
 
-    # breakpoint()
     ax.plot(buys.date, buys.price, 'bx',
             [pd.Timestamp(current_prices['highestbuy']['date'])],
             [current_prices['highestbuy']['price']],
@@ -86,7 +85,7 @@ def makeplot(trades, current_prices, resource, ax=plt.gca()):
                 'sells', 'lowest sell offer'])
 
     # days = mdates.DayLocator()
-    hours = mdates.HourLocator(range(0,24,2))
+    hours = mdates.HourLocator(range(0, 24, 2))
     hours_fmt = mdates.DateFormatter('%H')
 
 #    ax.xaxis.set_major_locator(days)
@@ -123,14 +122,14 @@ def plotly(trades, current_prices, resource):
         x=[current_prices['lowestbuy']['date']],
         y=[current_prices['lowestbuy']['price']],
         mode="markers",
-        marker={'color': 'red', 'symbol': 'x'}
+        marker={'color': 'black', 'symbol': 'x', 'size': 12}
         ))
     fig.add_trace(go.Scatter(
         name="highest buy offer",
         x=[current_prices['highestbuy']['date']],
         y=[current_prices['highestbuy']['price']],
         mode="markers",
-        marker={'color': 'blue', 'symbol': 'cross'}
+        marker={'color': 'black', 'symbol': 'cross', 'size': 12}
         ))
     ymin = min(trades.price.quantile(0.2),
                current_prices['highestbuy']['price'])*0.95
@@ -162,7 +161,7 @@ def main(args):
         fig_multi, axs = plt.subplots(3, 4, figsize=(18, 14))
         for ind in range(len(resources)):
             resource = resources[ind]
-            fig_single = plt.figure(ind)
+            fig_single = plt.figure(figsize=(12, 7))
             ax = fig_single.gca()
 
             try:
@@ -170,8 +169,9 @@ def main(args):
                 makeplot(trade_history, current_prices, resource, ax)
                 fig_single.savefig(os.path.join(OUTDIR, f'tradehist-{resource}.png'))
                 plotly(trade_history, current_prices, resource)
+                plt.close(fig_single.number)
 
-                plt.figure(fig_multi.number)
+                # plt.figure(fig_multi.number)
                 i, j = ind // 4, ind % 4
                 makeplot(trade_history, current_prices, resource, axs[i][j])
             except Exception as e:
@@ -179,6 +179,7 @@ def main(args):
                 continue
 
         fig_multi.savefig(os.path.join(OUTDIR, 'tradehist-all.png'))
+        plt.close(fig_multi.number)
         process = psutil.Process(os.getpid())
         print(process.memory_info().vms / 1e6)  # megabytes
         print(process.memory_info().rss / 1e6)
